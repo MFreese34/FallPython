@@ -5,6 +5,7 @@ Milo Freese
 Python 2
 Week 3 Dictionary
 September 18, 2019
+Modified September 20 by Lisa Nydick to add Error Handling and more consistant prompts
 
 """
 import sys
@@ -142,55 +143,98 @@ Global_Data = {'North America':
                         {'Population': '292,680',
                          'GDP': '',
                          'CO2 Emissions': ''}}}
-def main():
-    
-    # Display user available options
-    print('                  Options')
-    print('--------------------------------------------')
-    print('1) Display Continents')
-    print('2) Display Countries')
-    print('3) Display Demographics of Specified Country')
-    print('4) Delete an Item')
-    print('5) Add an Item')
-    print('6) End Program')
-    user_input = int(input('Enter numerical selection: '))
 
-# Determine user input selection
-    if user_input == 1:            
-        # Display Continent Info
-        print()
-        display_continents()
-        print()
-        main()
+#Message Global Const
+ERROR = "ERROR:"
+ERROR_INVALID_SELECTION = 'ERROR: Invalid selection.  Please enter a valid option.'
+ERROR_KEY_NOT_FOUND = "Not Found.  Values are case-sensitive."
+ERROR_KEY_ALREADY_EXISTS = "Already Exists."
+
+ENTER = "Enter a "
+COUNTRY = "Country"
+CONTINENT = "Continent"
+DEMOGRAPHIC = "Demographic"
+DEMOGRAPHIC_VALUE = "Demographic Value"
+KEY_FOUND = 'Key Found'
+
+def main():
+    display_menu = True
+    
+    while display_menu == True:     #Loop until user enters a valid selection
+        # Display user available options
+        print('                  Options')
+        print('--------------------------------------------')
+        print('1) Display Continents')
+        print('2) Display Countries')
+        print('3) Display Demographics of Specified Country')
+        print('4) Delete an Item')
+        print('5) Add an Item')
+        print('6) End Program')
+       
+        #Catch error where user enters a non-numeric value
+        try:
+            user_input = int(input('Enter numerical selection: '))
+            
+            # Determine user input selection
+            if user_input == 1:            
+                # Display Continent Info
+                print()
+                display_continents()
+                print()
+                display_menu = False    #Input was valid, so stop looping
+                main()
         
-    elif user_input == 2:        
-        # Display Country Info
-        print()
-        display_countries()
-        print()
-        main()
+            elif user_input == 2:        
+                # Display Country Info
+                print()
+                display_countries()
+                print()
+                display_menu = False
+                main()
         
-    elif user_input == 3:   
-        # Display Demographic info
-        print()
-        display_countries_demographics()
-        print()
-        main()
-    elif user_input == 4:
-        # Provide user option to delete an item from dictionary
-        print()
-        delete()
-        print()
-        main()
-    elif user_input == 5:
-        # Provide user an option to add an item to dicionary
-        print()
-        add()
-        print()
-        main()
-    elif user_input == 6:
-        # Terminate Program
-        sys.exit
+            elif user_input == 3:   
+                # Display Demographic info
+                print()
+                display_countries_demographics()
+                print()
+                display_menu = False
+                main()
+            elif user_input == 4:
+                # Provide user option to delete an item from dictionary
+                print()
+                delete()
+                print()
+                display_menu = False
+                main()
+            elif user_input == 5:
+                # Provide user an option to add an item to dicionary
+                print()
+                add()
+                print()
+                display_menu = False
+                main()
+            elif user_input == 6:
+                # Terminate Program
+                display_menu = False
+                sys.exit
+            else:
+                print()
+                print(ERROR_INVALID_SELECTION)
+                print()
+                display_menu = True     #Keep looping
+        except Exception as err:
+            if str(err).find('invalid literal') != -1:  #Error converting string to int type
+                print()
+                print(ERROR_INVALID_SELECTION)
+                print()
+                display_menu = True     #Keep looping
+            else:
+                print()
+                print(err)
+                print()
+                display_menu = True     #Keep looping
+
+
 
 def display_continents():
     
@@ -199,95 +243,256 @@ def display_continents():
         print(continent) 
     
 def display_countries():
-    
+    keyfound = False
     # Obtain user input
-    continent_input = input('Enter a Continent: ')
+    continent_input = input(ENTER + CONTINENT + ':')
     print()
     
-    # Display Countries within dictionary
-    for country in Global_Data[continent_input]: 
-        print(country)
+    #Make sure the input is a valid key
+    keyfound = find_key(Global_Data, continent_input)
+    if keyfound == True:
+        # Display Countries within dictionary
+        for country in Global_Data[continent_input]: 
+            print(country)
+    else:   #Key was not found
+        print(ERROR + ' ' + CONTINENT + ' "' + continent_input + '" ' + ERROR_KEY_NOT_FOUND)
+
     
 def display_countries_demographics():
-    
-    # Obtain user input
-    continent_input = input('Enter a Continent: ')
-    country_input = input('Enter a Country: ')
-    print()
-    
-    # Display specified country demographics
-    print(Global_Data[continent_input][country_input])
-        
-def delete():
-    
-    # Obtain user input
-    cont_input = input('Continent: ')
-    del_item = input('Delete a country or demographic? [C = Country, ' +
-                                           'D = Demographic]: ')
-    
-    # Determine if user selected to delete country item
-    if 'C' in del_item:
-        
-        # Obtain user input
-        country_input = input('Country: ')
-        # Delete item
-        del Global_Data[cont_input][country_input]
+    key1found = False
+    key2found = False
 
+    # Obtain user input
+    continent_input = input(ENTER + CONTINENT + ':')
+    
+    #Make sure the input is a valid key
+    key1found = find_key(Global_Data, continent_input)
+    if key1found == True: 
+        country_input = input(ENTER + COUNTRY + ':')
+
+        #Make sure the input is a valid key
+        key2found = find_key(Global_Data[continent_input], country_input)
+        if key2found == True:
+            # Display specified country demographics
+            print(Global_Data[continent_input][country_input])
+        else:   #Key was not found
+            print(ERROR + ' ' + COUNTRY + ' "' + country_input + '" ' + ERROR_KEY_NOT_FOUND)
+    else:   #Key was not found
+        print(ERROR + ' ' + CONTINENT + ' "' + continent_input + '" ' + ERROR_KEY_NOT_FOUND)
+    
+def delete():
+    key1found = False
+    key2found = False
+    key3found = False
+    display_menu = True
+    
+    # Obtain user input
+    continent_input = input(ENTER + CONTINENT + ':')
+    #Make sure the input is a valid key
+    key1found = find_key(Global_Data, continent_input)
+    if key1found == True:
+    
+        del_item = input('Delete a country or demographic? [C = Country, ' +
+                                           'D = Demographic]: ')
         
-    # Determine if user selected to delete demographic item
-    elif 'D' in del_item:
-        
-        # Obtain user input
-        country_input = input('Country: ')
-        demo = input('Demographic: ')
-        # Delete item
-        del Global_Data[cont_input][country_input][demo]
+        while display_menu == True:     #Keep displaying menu until a valid option is entered
+            # Determine if user selected to delete country item
+            if 'C' in del_item:
+                display_menu = False    #Stop looping
+                # Obtain user input
+                country_input = input(ENTER + COUNTRY + ':')
+                
+                #Make sure the input is a valid key
+                key2found = find_key(Global_Data[continent_input], country_input)
+                if key2found == True:                
+                    # Delete item
+                    del Global_Data[continent_input][country_input]
+                else:
+                    print(ERROR + ' ' + COUNTRY + ' "' + country_input + '" ' + ERROR_KEY_NOT_FOUND)
+                
+                
+            # Determine if user selected to delete demographic item
+            elif 'D' in del_item:
+                display_menu = False    #Stop looping
+                # Obtain user input
+                country_input = input(ENTER + COUNTRY + ':')
+                
+                #Make sure the input is a valid key
+                key2found = find_key(Global_Data[continent_input], country_input)
+                if key2found == True:                
+                    demo_input = input(ENTER + DEMOGRAPHIC + ':')
+                    
+                    #Make sure the input is a valid key
+                    key3found = find_key(Global_Data[continent_input][country_input], demo_input)
+                    if key3found == True:
+                        # Delete item
+                        del Global_Data[continent_input][country_input][demo_input]
+                    else:
+                        print(ERROR + ' ' + DEMOGRAPHIC + ' "' + demo_input + '" ' + ERROR_KEY_NOT_FOUND)
+                else:
+                    print(ERROR + ' ' + COUNTRY + ' "' + country_input + '" ' + ERROR_KEY_NOT_FOUND)
+                
+            else:
+                #Invalid selection.  Keep looping.
+                print(ERROR_INVALID_SELECTION)
+                display_menu = True
+    else:   #Key was not found
+        print(ERROR + ' ' + CONTINENT + ' "' + continent_input + '" ' + ERROR_KEY_NOT_FOUND)
     
 def add():
+    key1found = False
+    key2found = False
+    key3found = False
 
-    # Display selections
-    print('   Addition Selections')
-    print('--------------------------')
-    print('1) Add a Continent')
-    print('2) Add a Country')
-    print('3) Add a Demographic')
-    print('4) Add a Demographic Value')
-    user_input = int(input('Enter numerical selection: '))
+
+    display_menu = True
     
-# Determine user input selection
-    if user_input == 1:
+    while display_menu == True:     #Loop until user enters a valid selection
+    
+        # Display selections
+        print('   Addition Selections')
+        print('--------------------------')
+        print('1) Add a Continent')
+        print('2) Add a Country')
+        print('3) Add a Demographic')
+        print('4) Add a Demographic Value')
+    
+        try:    #catch error where user enters a non-numeric value
+            user_input = int(input('Enter numerical selection: '))
+    
+            # Determine user input selection
+            if user_input == 1:     #Add Continent
+                display_menu = False    #Input was valid, so stop looping
         
-        # Obtain user input 
-        cont_input = input('Enter Continent: ')
-        # Add input into dictionary
-        Global_Data[cont_input] = {}
+                # Obtain user input 
+                continent_input = input(ENTER + CONTINENT + ':')
+            
+                #Make sure the doesn't already exist
+                key1found = find_key(Global_Data, continent_input)
+                
+                if key1found == False:        
+                    # Add input into dictionary
+                    Global_Data[continent_input] = {}
+                    
+                else:
+                    print(ERROR + ' ' + CONTINENT + ' "' + continent_input + '" ' + ERROR_KEY_ALREADY_EXISTS)
+                    
         
-    elif user_input == 2:
+            elif user_input == 2:   #Add Country
+                display_menu = False
         
-        # Obtain user input
-        cont_input = input('Enter Continent: ')
-        country_input = input('Enter Country: ')
-        # Add input into dictionary
-        Global_Data[cont_input][country_input] = {}
+                # Obtain user input
+                continent_input = input(ENTER + CONTINENT + ':')
+                
+                #Make sure the input is a valid key
+                key1found = find_key(Global_Data, continent_input)
+
+                if key1found == True:        
+                    # Obtain user input
+                    country_input = input(ENTER + COUNTRY + ':')
+
+                    #Make sure the doesn't already exist
+                    key2found = find_key(Global_Data[continent_input], country_input)
+                    if key2found == False:
+                        # Add input into dictionary
+                        Global_Data[continent_input][country_input] = {}
+                    else:   #Key already exists, so it can't be added
+                        print(ERROR + ' ' + COUNTRY + ' "' + country_input + '" ' + ERROR_KEY_ALREADY_EXISTS)
+                else:   #Key was not found
+                    print(ERROR + ' ' + CONTINENT + ' "' + continent_input + '" ' + ERROR_KEY_NOT_FOUND)
+
         
-    elif user_input == 3:
+            elif user_input == 3:   #Add Demographic
+                display_menu = False
         
-        # Obtain user input
-        cont_input = input('Enter Continent: ')
-        country_input = input('Enter Country: ')
-        demo_input = input('Enter Demographic: ')
-        # Add input into dictionary
-        Global_Data[cont_input][country_input][demo_input] = {}
-        
-    elif user_input == 4:
-        
-        # Obtain user inputcont_input = input('Enter Continent: ')
-        cont_input = input('Enter Continent: ')
-        country_input = input('Enter Country: ')
-        demo_input = input('Enter Demographic: ')
-        value_input = input('Enter Demographic Value: ')
-        # Add input into dictionary
-        Global_Data[cont_input][country_input][demo_input] = value_input
+                # Obtain user input
+                continent_input = input(ENTER + CONTINENT + ':')
+                
+                #Make sure the input is a valid key
+                key1found = find_key(Global_Data, continent_input)
+                if key1found == True: 
+                    #Obtain user input
+                    country_input = input(ENTER + COUNTRY + ':')
+                
+                    #Make sure the input is a valid key
+                    key2found = find_key(Global_Data[continent_input], country_input)
+                    if key2found == True:
+                        # Obtain user input
+                        demo_input = input(ENTER + DEMOGRAPHIC + ':')  
+                    
+                        #Make sure the key doesn't already exist
+                        key3found = find_key(Global_Data[continent_input][country_input], demo_input)
+                        if key3found == False:
+                            # Add input into dictionary
+                            Global_Data[continent_input][country_input][demo_input] = {}
+                        else:   #Key already exists, so it can't be added
+                            print(ERROR + ' ' + DEMOGRAPHIC + ' "' + demo_input + '" ' + ERROR_KEY_ALREADY_EXISTS)
+                    else:
+                        print(ERROR + ' ' + COUNTRY + ' "' + country_input + '" ' + ERROR_KEY_NOT_FOUND)
+                else:
+                    print(ERROR + ' ' + CONTINENT + ' "' + continent_input + '" ' + ERROR_KEY_NOT_FOUND)                        
+
+            
+            elif user_input == 4:   #Add Demographic Value
+                display_menu = False
+                # Obtain user input
+                continent_input = input(ENTER + CONTINENT + ':')
+
+                #Make sure the input is a valid key
+                key1found = find_key(Global_Data, continent_input)
+                if key1found == True: 
+                    #Obtain user input
+                    country_input = input(ENTER + COUNTRY + ':')
+                
+                    #Make sure the input is a valid key
+                    key2found = find_key(Global_Data[continent_input], country_input)
+                    if key2found == True:
+                        # Obtain user input
+                        demo_input = input(ENTER + DEMOGRAPHIC + ':')            
+    
+                        #Make sure the input is a valid key
+                        key3found = find_key(Global_Data, continent_input)
+                        if key3found == True:     
+
+                            #Obtain user input
+                            value_input = input(ENTER + DEMOGRAPHIC_VALUE + ':') 
+                            
+                            # Add input into dictionary
+                            Global_Data[continent_input][country_input][demo_input] = value_input
+                        else:
+                            print(ERROR + ' ' + DEMOGRAPHIC + ' "' + demo_input + '" ' + ERROR_KEY_NOT_FOUND)                        
+                       
+                    else:
+                        print(ERROR + ' ' + COUNTRY + ' "' + country_input + '" ' + ERROR_KEY_NOT_FOUND)                    
+                else:
+                    print(ERROR + ' ' + CONTINENT + ' "' + continent_input + '" ' + ERROR_KEY_NOT_FOUND)                        
+
+            else:   #Invalid selection
+                print()
+                print(ERROR_INVALID_SELECTION)
+                print()
+                display_menu = True
+        except Exception as err:
+            if str(err).find('invalid literal') != -1:  #Error converting string to int type
+                print()
+                print(ERROR_INVALID_SELECTION)
+                print()
+                display_menu = True
+            else:
+                print()
+                print(err)
+                print()
+                display_menu = True            
+
+# Function makes sure a user-input key exists in the dictionary
+def find_key(d, key):
+    v = ''
+    v = d.get(key, ERROR_KEY_NOT_FOUND)
+
+    if v == ERROR_KEY_NOT_FOUND:
+        return False
+    else:
+        return True
     
 # Execute the main function
 if __name__ == "__main__":
