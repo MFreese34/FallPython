@@ -8,6 +8,7 @@ September 18, 2019
 
 """
 import sys
+
 Global_Data = {'North America': 
                     {'Antigua and Barbuda': 
                         {'Population': '96,286',
