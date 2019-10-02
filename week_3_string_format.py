@@ -39,7 +39,8 @@ def greeting():
             # split names into two different values
             first_name, last_name = record.split()
             # display greeting with integrated name values
-            print(f'Good evening Dr. {last_name}, would you mind if I called you {first_name}?')
+            print(f'Good evening Dr. {last_name}, would you mind if I called',
+                  f'you {first_name}?')
    
 # Execute the main function
 if __name__ == "__main__":
