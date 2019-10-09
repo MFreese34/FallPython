@@ -85,6 +85,7 @@ def logMalformedProject():
 
 def unique_values():
     e_c = 'EC'
+    
 # Execute the main function
 if __name__ == "__main__":
     main()
