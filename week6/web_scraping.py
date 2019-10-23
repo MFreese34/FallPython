@@ -10,12 +10,12 @@
 import urllib.request
 import bs4
 
-
 #####################################
 # Obtain Web address from user      #
 #####################################
 def getSearchURL(term):
     url = input('Enter Web Address: ') 
+    # https://pitchfork.com/search/?query=
     url = (url + '%s') % (str(term))
     return url
 
@@ -89,5 +89,5 @@ def main():
         tag = item.find('span').string
         writeToFile(file, tag)
     
-if __name__== '__main__':
-    main()
+#if __name__== '__main__':
+main()
