@@ -1,0 +1,45 @@
+		Lambda Expression
+
+- (Definition) Lambda expression is an anonymous function (function without a name)
+	- (typical function)	def function_name(parameter_list):
+					return expression
+	- (lambda expression) lambda paramter_list: expression
+		- anonymous function is created with lambda keyword
+
+	- able to accept zero or multiple arguments, but only one expression
+	- utilized to create small, one-off functions that will only be used once
+
+- Lambda expression vs. Regular Function
+	- lambda expression is essentially a function with syntactic sugar (syntax designed to make things easier to read or express) 
+		- shortened code to define or simple, single-use function
+
+- Lambda Syntax
+	- Contains only expressions; does not include statements (ex: return statements)
+	- written in single line of execution
+		- although lambda expression can be split up into multiple lines (using parantheses or multiline string), 
+		it is still single lambda expression
+			(lambda x:
+			(x % 2))(8)
+	- Can be executed as an Immediately Invoked Function Execution (IIFE)
+		(lambda x: x * 5)(6)
+	- Can be assigned to a variable
+		add_nums = lambda x,y: x + y
+
+- Useful lambda circumstances
+	- Methods
+		- map function: 
+			- expects two arguments - function and list
+			- takes function and applies to every element within list
+			and returns the list with modified elements as a map object
+			- list function is used to convert map back to list
+		
+		- filter function:
+			- takes a function and applies to every element wihtin list
+			- creates new list only elements that cause function to return True
+
+		- reduce function:
+			- applies rolling calculation to all items within list
+
+- Cons of lambda
+	- lambda expression is not sufficient for anything beyond basic tasks 
+			
